@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario Bimestral</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos personalizados para la paleta de colores y la fuente especificada */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ECEFF0; /* Blanco anti-flash */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #FFFFFF; /* Fondo blanco para el formulario */
+            border-radius: 1.5rem; /* Esquinas redondeadas */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+            padding: 2rem;
+            max-width: 90%;
+            width: 800px; /* Ancho máximo para escritorio */
+            transition: all 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Ajustes responsivos */
+        @media (min-width: 640px) { /* Pantallas pequeñas y superiores */
+            .container {
+                padding: 3rem;
+            }
+        }
+
+        .gradient-button {
+            background-image: linear-gradient(to right, #28418B, #009BCF); /* Azul Marian a Verde Azulado */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem; /* Esquinas redondeadas */
+            font-weight: 600;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .gradient-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0.9;
+        }
+        .gradient-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-image: linear-gradient(to right, #BABBBB, #BABBBB); /* Plateado para deshabilitado */
+        }
+        .input-field {
+            border-radius: 0.5rem;
+            border: 1px solid #BABBBB; /* Borde plateado */
+            padding: 0.75rem 1rem;
+            width: 100%;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: border-color 0.2s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #009BCF; /* Verde Azulado al enfocar */
+            box-shadow: 0 0 0 3px rgba(0, 155, 207, 0.2); /* Anillo de enfoque suave */
+        }
+        .label-text {
+            font-weight: 600;
+            color: #28418B; /* Azul Marian */
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .error-message {
+            color: #DC2626; /* Rojo para errores */
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        .success-message {
+            color: #16A34A; /* Verde para éxito */
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .summary-box {
+            background-color: #F8FAFC; /* Gris claro para el resumen */
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            border: 1px solid #E2E8F0;
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #E2E8F0;
+        }
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        .summary-label {
+            font-weight: 600;
+            color: #28418B;
+        }
+        .summary-value {
+            color: #5B6384; /* Ultravioleta */
+        }
+
+        /* Estilos para las etiquetas y valores que se desean resaltar en el resumen */
+        .summary-highlight-label {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 700; /* Bold */
+            color: #28418B; /* Marian Blue */
+        }
+
+        .summary-highlight-value {
+            font-size: 1.75rem; /* Slightly smaller than 2.25rem */
+            font-weight: 700; /* Extra bold */
+            color: #009BCF; /* Changed to the requested blue */
+        }
+
+        /* Estilos para la página de inicio */
+        #intro-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100vh;
+            width: 100%;
+            background-color: #ECEFF0;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        #intro-page .logo {
+            max-width: 250px;
+            height: auto;
+            margin-bottom: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        #intro-page h1 {
+            color: #28418B;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        #intro-page h2 {
+            color: #5B6384;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+        }
+        #intro-page .start-button {
+            background-image: linear-gradient(to right, #28418B, #009BCF);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        #intro-page .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            opacity: 0.95;
+        }
+
+        /* Estilos para el botón de la cámara */
+        .camera-button {
+            background-color: #5B6384;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .camera-button:hover {
+            background-color: #4A516E;
+        }
+        .file-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Modal para mensajes de confirmación */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #FFFFFF; /* Fondo blanco */
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #28418B; /* Borde azul del botón */
+            width: 80%;
+            max-width: 500px;
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+        }
+        .modal-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #28418B;
+            margin-bottom: 1rem;
+        }
+        .modal-content p {
+            font-size: 1rem;
+            color: #5B6384;
+            margin-bottom: 1.5rem;
+        }
+        #modalExistence { /* Estilo para el número de existencia en el modal */ 
+            color: #28418B;
+            font-size: 3rem;
+            font-weight: bold;
+            margin-top: 2rem; 
+            margin-bottom: 2rem; 
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        /* Estilos específicos para el modal de éxito */
+        .modal-success {
+            background-color: #FFFFFF;
+            border-color: #28418B; 
+        }
+        /* Estilos específicos para el modal de error */
+        .modal-error {
+            background-color: #FEF2F2;
+            border-color: #EF4444; 
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Página de Inicio -->
+    <div id="intro-page" class="w-full">
+        <img src="https://github.com/juanbls100/forms_connect_googlesheets/blob/main/Your%20paragraph%20text%20(8).png?raw=true" alt="SIF Logo" class="logo">
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-blue-900 mb-4">Inventario Bimestral de Urna y Mamparas</h1>
+        <h2 id="introSubtitle" class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-700 mb-8">Sindicato financiero</h2>
+        <button id="startButton" class="start-button">Comenzar Captura</button>
+    </div>
+
+    <!-- Contenedor del Formulario Principal (inicialmente oculto) -->
+    <div id="form-container" class="container hidden">
+        <h1 class="text-3xl font-bold text-center text-[#28418B] mb-2 sm:text-4xl">Inventario bimestral de Urna y mamparas</h1>
+        <h2 id="dynamicSubtitle" class="text-xl font-bold text-center text-[#5B6384] mb-6 sm:text-2xl">Sindicato financiero - Datos del Trabajador</h2>
+
+        <form id="inventoryForm" class="space-y-6">
+            <!-- Sección 1 del Formulario (Datos del Trabajador) -->
+            <div id="form-section-1">
+                <!-- Bimestre -->
+                <div>
+                    <label for="bimestre" class="label-text">Bimestre</label>
+                    <select id="bimestre" name="Bimestre" class="input-field" required>
+                        <option value="">Selecciona un bimestre</option>
+                        <option value="Ene - Feb">Ene - Feb</option>
+                        <option value="Mar - Abr">Mar - Abr</option>
+                        <option value="May - Jun">May - Jun</option>
+                        <option value="Jul - Ago">Jul - Ago</option>
+                        <option value="Sep - Oct">Sep - Oct</option>
+                        <option value="Nov - Dic">Nov - Dic</option>
+                    </select>
+                </div>
+                
+                <!-- Fecha de inventario -->
+                <div>
+                    <label for="fechaInventario" class="label-text">Fecha de inventario</label>
+                    <input type="date" id="fechaInventario" name="Fecha de inventario" class="input-field" required>
+                </div>
+
+                <div>
+                    <label for="region" class="label-text">Región</label>
+                    <select id="region" name="Región" class="input-field" required>
+                        <option value="">Selecciona una región</option>
+                        <option value="TCMC">TCMC</option>
+                        <option value="OAXC">OAXC</option>
+                        <option value="IZTP">IZTP</option>
+                        <option value="IXTP">IXTP</option>
+                        <option value="AZCP">AZCP</option>
+                        <option value="CTLZ">CTLZ</option>
+                        <option value="PBLA">PBLA</option>
+                        <option value="TXCC">TXCC</option>
+                        <option value="TOLC">TOLC</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="empresa" class="label-text">Empresa</label>
+                    <select id="empresa" name="Empresa" class="input-field" required>
+                        <option value="">Selecciona una empresa</option>
+                        <option value="Bancoppel">Bancoppel</option>
+                        <option value="Afore Coppel">Afore Coppel</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="nombreDelegado" class="label-text">Nombre de Delegado</label>
+                    <input type="text" id="nombreDelegado" name="Nombre de Delegado" placeholder="Captura el nombre completo" class="input-field" required>
+                </div>
+                
+                <span id="section1ErrorMessage" class="error-message hidden text-center">Por favor, completa todos los campos de esta sección antes de continuar.</span>
+                <div class="flex justify-between mt-6">
+                    <button type="button" id="backButtonSection1" class="w-1/2 gradient-button bg-[#5B6384] mr-2">Atrás</button>
+                    <button type="button" id="nextButton" class="w-1/2 gradient-button ml-2">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- Sección 2 del Formulario (Campos Numéricos y Fotos de Urnas, y Opcional de Mamparas) -->
+            <div id="form-section-2" class="hidden">
+                <!-- Inventario de Urnas -->
+                <div>
+                    <label for="totalUrnas" class="label-text">Total de urnas</label>
+                    <input type="number" id="totalUrnas" name="Total de urnas" placeholder="Ingrese el total de urnas" class="input-field" min="0" required>
+                </div>
+                <div>
+                    <label for="urnasDañadas" class="label-text">Urnas dañadas y/o incompletas</label>
+                    <input type="number" id="urnasDañadas" name="Urnas dañadas y/o incompletas" placeholder="Ingrese urnas dañadas" class="input-field" min="0" required>
+                </div>
+                <div>
+                    <label for="traspasosRecibidos" class="label-text">Traspasos recibidos</label>
+                    <input type="number" id="traspasosRecibidos" name="Traspasos recibidos" placeholder="Ingrese traspasos recibidos" class="input-field" min="0" required>
+                </div>
+                <div>
+                    <label for="traspasosRealizados" class="label-text">Traspasos realizados</label>
+                    <input type="number" id="traspasosRealizados" name="Traspasos realizados" placeholder="Ingrese traspasos realizados" class="input-field" min="0" required>
+                </div>
+                <div>
+                    <label for="urnasExtraviadas" class="label-text">Urnas extravíadas</label>
+                    <input type="number" id="urnasExtraviadas" name="Urnas extravíadas" placeholder="Ingrese urnas extravíadas" class="input-field" min="0" required>
+                </div>
+                <div>
+                    <label for="urnasRecuperadas" class="label-text">Urnas recuperadas</label>
+                    <input type="number" id="urnasRecuperadas" name="Urnas recuperadas" placeholder="Ingrese urnas recuperadas" class="input-field" min="0" required>
+                </div>
+                <div>
+                    <label for="nuevasEntradas" class="label-text">Nuevas entradas</label>
+                    <input type="number" id="nuevasEntradas" name="Nuevas entradas" placeholder="Ingrese nuevas entradas" class="input-field" min="0" required>
+                </div>
+
+                <div class="mt-8 p-4 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] shadow-sm">
+                    <label class="label-text text-lg block mb-2 text-center">La existencia actual disponible (Urnas):</label>
+                    <p id="existenciaActualUrnas" class="text-2xl font-bold text-[#009BCF] text-center">0</p>
+                </div>
+
+                <!-- Sección de Inventario de Mamparas (oculta por defecto) -->
+                <div id="mamparasSection" class="hidden mt-8 p-4 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] shadow-sm">
+                    <h3 class="text-xl font-bold text-[#28418B] mb-4 text-center">Inventario de Mamparas</h3>
+                    <div>
+                        <label for="mamparasInicial" class="label-text">Inventario inicial</label>
+                        <input type="number" id="mamparasInicial" name="Mamparas - Inventario inicial" placeholder="Ingrese el inventario inicial de mamparas" class="input-field" min="0">
+                    </div>
+                    <div>
+                        <label for="mamparasExtraviadas" class="label-text">Extraviadas</label>
+                        <input type="number" id="mamparasExtraviadas" name="Mamparas - Extraviadas" placeholder="Ingrese mamparas extraviadas" class="input-field" min="0">
+                    </div>
+                    <div>
+                        <label for="mamparasDañadas" class="label-text">Dañadas e incompletas</label>
+                        <input type="number" id="mamparasDañadas" name="Mamparas - Dañadas e incompletas" placeholder="Ingrese mamparas dañadas e incompletas" class="input-field" min="0">
+                    </div>
+                    <div class="mt-4 p-4 bg-white rounded-xl border border-[#E2E8F0] shadow-sm">
+                        <label class="label-text text-lg block mb-2 text-center">Total disponible (Mamparas):</label>
+                        <p id="totalDisponibleMamparas" class="text-2xl font-bold text-[#009BCF] text-center">0</p>
+                    </div>
+                </div>
+
+                <!-- Secciones de Carga de Archivos -->
+                <div>
+                    <label class="label-text">Portada de urnas y mamparas</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="portadaUrnas" name="Portada de urnas y mamparas (Archivo)" accept="image/*" capture="environment" class="hidden">
+                        <button type="button" id="openPortadaUrnasCamera" class="camera-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera">
+                                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+                                <circle cx="12" cy="13" r="3"/>
+                            </svg>
+                            Cargar archivo
+                        </button>
+                        <span id="portadaUrnasFileName" class="text-sm text-gray-600">No se ha seleccionado archivo.</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="label-text">Foto de Urnas y mamparas</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="fotoUrnas" name="Foto de Urnas y mamparas (Archivo)" accept="image/*" capture="environment" class="hidden">
+                        <button type="button" id="openFotoUrnasCamera" class="camera-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera">
+                                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+                                <circle cx="12" cy="13" r="3"/>
+                            </svg>
+                            Cargar archivo
+                        </button>
+                        <span id="fotoUrnasFileName" class="text-sm text-gray-600">No se ha seleccionado archivo.</span>
+                    </div>
+                </div>
+
+                <div id="urlError" class="error-message hidden text-center">
+                    Error: La URL de Google Apps Script no ha sido configurada. Por favor, reemplaza 'PEGA_TU_URL_DE_APLICACION_WEB_AQUI' en el código JavaScript.
+                </div>
+                
+                <div class="flex justify-between mt-6">
+                    <button type="button" id="backButtonSection2" class="w-1/2 gradient-button bg-[#5B6384] mr-2">Atrás</button>
+                    <button type="button" id="nextButtonSection2" class="w-1/2 gradient-button ml-2">Siguiente</button>
+                </div>
+            </div>
+
+            <div id="responseMessage" class="hidden"></div>
+        </form>
+
+        <!-- Sección de Resumen y Guardado Final (inicialmente oculta) -->
+        <div id="summarySection" class="summary-box hidden">
+            <h3 class="text-xl font-bold text-[#28418B] text-center mb-4">Resumen de Datos Capturados</h3>
+            <div id="summaryContent">
+                </div>
+            <div class="flex justify-between mt-6">
+                <button type="button" id="modifyDataButton" class="w-1/2 gradient-button bg-[#5B6384] mr-2">Modificar Datos</button>
+                <button type="button" id="saveDataButton" class="w-1/2 gradient-button ml-2">Guardar datos</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div id="confirmationModal" class="modal">
+        <div id="modalContent" class="modal-content">
+            <h3 id="modalTitle"></h3>
+            <p id="modalMessage"></p>
+            <div id="modalExistence" class="text-5xl font-bold hidden" style="color: #28418B; margin-top: 2rem; margin-bottom: 2rem;"></div>
+            <div class="modal-footer">
+                <button id="modalOkButton" class="gradient-button">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // IMPORTANTE: Reemplaza con la URL real de tu Google Apps Script
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxSbvgvdxzXEZJ0cUqC_B8z_KE5QnfQzkVIOOZKvox0gWo65EantEognQV1/exec'; 
+
+        const introPage = document.getElementById('intro-page');
+        const introSubtitle = document.getElementById('introSubtitle'); 
+        const startButton = document.getElementById('startButton');
+        const formContainer = document.getElementById('form-container');
+        const dynamicSubtitle = document.getElementById('dynamicSubtitle');
+        const inventoryForm = document.getElementById('inventoryForm');
+        const urlError = document.getElementById('urlError');
+        const responseMessage = document.getElementById('responseMessage');
+        const existenciaActualUrnasDisplay = document.getElementById('existenciaActualUrnas'); 
+        const summarySection = document.getElementById('summarySection');
+        const summaryContent = document.getElementById('summaryContent');
+        const saveDataButton = document.getElementById('saveDataButton'); 
+        const modifyDataButton = document.getElementById('modifyDataButton'); 
+
+        // Elementos para el formulario de múltiples secciones
+        const formSection1 = document.getElementById('form-section-1');
+        const formSection2 = document.getElementById('form-section-2');
+        const nextButtonSection1 = document.getElementById('nextButton'); 
+        const backButtonSection1 = document.getElementById('backButtonSection1'); 
+        const backButtonSection2 = document.getElementById('backButtonSection2'); 
+        const nextButtonSection2 = document.getElementById('nextButtonSection2'); 
+        const section1ErrorMessage = document.getElementById('section1ErrorMessage');
+
+        // Elementos de entrada de archivo y botón de cámara
+        const bimestreInput = document.getElementById('bimestre'); 
+        const portadaUrnasInput = document.getElementById('portadaUrnas');
+        const openPortadaUrnasCameraButton = document.getElementById('openPortadaUrnasCamera');
+        const portadaUrnasFileNameSpan = document.getElementById('portadaUrnasFileName');
+
+        const fotoUrnasInput = document.getElementById('fotoUrnas');
+        const openFotoUrnasCameraButton = document.getElementById('openFotoUrnasCamera');
+        const fotoUrnasFileNameSpan = document.getElementById('fotoUrnasFileName');
+
+        // Elementos del modal
+        const confirmationModal = document.getElementById('confirmationModal');
+        const modalContent = document.getElementById('modalContent'); 
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalExistence = document.getElementById('modalExistence'); 
+        const modalOkButton = document.getElementById('modalOkButton');
+
+        // Elementos de la nueva sección de Mamparas
+        const mamparasSection = document.getElementById('mamparasSection');
+        const mamparasInicialInput = document.getElementById('mamparasInicial');
+        const mamparasExtraviadasInput = document.getElementById('mamparasExtraviadas');
+        const mamparasDañadasInput = document.getElementById('mamparasDañadas');
+        const totalDisponibleMamparasDisplay = document.getElementById('totalDisponibleMamparas');
+        const empresaSelect = document.getElementById('empresa'); 
+
+        // Variable global para almacenar todos los datos del formulario antes del envío final
+        let allFormData = {};
+
+        /**
+         * Muestra un modal de confirmación con un título, mensaje, y tipo.
+         * Se ha eliminado el parámetro existenceValue ya que no se mostrará.
+         * @param {string} title - El título del modal.
+         * @param {string} message - El mensaje a mostrar en el modal.
+         * @param {string} type - 'success', 'error', o cualquier otro (por defecto 'info').
+         */
+        function showModal(title, message, type = 'info') { 
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalExistence.textContent = ''; 
+            modalExistence.classList.add('hidden'); 
+
+            modalContent.classList.remove('modal-success', 'modal-error');
+            modalContent.style.borderColor = '#28418B'; 
+
+            if (type === 'success') {
+                modalContent.classList.add('modal-success');
+            } else if (type === 'error') {
+                modalContent.classList.add('modal-error');
+            }
+
+            confirmationModal.style.display = 'flex'; 
+        }
+
+        // Cierra el modal cuando se hace clic en el botón "Aceptar"
+        modalOkButton.addEventListener('click', () => {
+            confirmationModal.style.display = 'none';
+        });
+
+        /**
+         * Verifica si la URL de Google Apps Script está configurada correctamente
+         * y habilita/deshabilita el botón de envío según sea necesario.
+         */
+        function checkUrlAndButton() {
+            if (GOOGLE_APPS_SCRIPT_URL === 'PEGA_TU_URL_DE_APLICACION_WEB_AQUI' || !GOOGLE_APPS_SCRIPT_URL.startsWith('http')) {
+                saveDataButton.disabled = true; 
+                urlError.classList.remove('hidden');
+                console.error("Error: La URL de Google Apps Script no ha sido configurada o es inválida. Por favor, reemplaza 'PEGA_TU_URL_DE_APLICACION_WEB_AQUI' con la URL de tu despliegue de Apps Script.");
+            } else {
+                saveDataButton.disabled = false; 
+                urlError.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Calcula y actualiza el valor de "Existencia actual disponible" para urnas.
+         */
+        function calculateExistenciaActualUrnas() {
+            const totalUrnas = parseInt(document.getElementById('totalUrnas').value) || 0;
+            const urnasDañadas = parseInt(document.getElementById('urnasDañadas').value) || 0;
+            const traspasosRecibidos = parseInt(document.getElementById('traspasosRecibidos').value) || 0;
+            const traspasosRealizados = parseInt(document.getElementById('traspasosRealizados').value) || 0;
+            const urnasExtraviadas = parseInt(document.getElementById('urnasExtraviadas').value) || 0;
+            const urnasRecuperadas = parseInt(document.getElementById('urnasRecuperadas').value) || 0;
+            const nuevasEntradas = parseInt(document.getElementById('nuevasEntradas').value) || 0;
+
+            const existencia = totalUrnas - urnasDañadas + traspasosRecibidos - traspasosRealizados - urnasExtraviadas + urnasRecuperadas + nuevasEntradas;
+            existenciaActualUrnasDisplay.textContent = existencia;
+        }
+
+        /**
+         * Calcula y actualiza el valor de "Total disponible" para mamparas.
+         */
+        function calculateTotalDisponibleMamparas() {
+            const mamparasInicial = parseInt(mamparasInicialInput.value) || 0;
+            const mamparasExtraviadas = parseInt(mamparasExtraviadasInput.value) || 0;
+            const mamparasDañadas = parseInt(mamparasDañadasInput.value) || 0;
+
+            const totalDisponible = mamparasInicial - mamparasExtraviadas - mamparasDañadas;
+            totalDisponibleMamparasDisplay.textContent = totalDisponible;
+        }
+
+        // Agrega event listeners a todos los campos de entrada numéricos de urnas para el cálculo en tiempo real
+        document.querySelectorAll('#form-section-2 input[type="number"]:not([id^="mamparas"])').forEach(input => {
+            input.addEventListener('input', calculateExistenciaActualUrnas);
+        });
+
+        // Agrega event listeners a los campos de mamparas para el cálculo en tiempo real
+        mamparasInicialInput.addEventListener('input', calculateTotalDisponibleMamparas);
+        mamparasExtraviadasInput.addEventListener('input', calculateTotalDisponibleMamparas);
+        mamparasDañadasInput.addEventListener('input', calculateTotalDisponibleMamparas);
+
+
+        // Event listener para mostrar/ocultar la sección de mamparas
+        empresaSelect.addEventListener('change', () => {
+            if (empresaSelect.value === 'Bancoppel') {
+                mamparasSection.classList.remove('hidden');
+                // Make mamparas fields required if section is visible
+                mamparasInicialInput.setAttribute('required', 'true');
+                mamparasExtraviadasInput.setAttribute('required', 'true');
+                mamparasDañadasInput.setAttribute('required', 'true');
+            } else {
+                mamparasSection.classList.add('hidden');
+                // Remove required attribute if section is hidden
+                mamparasInicialInput.removeAttribute('required');
+                mamparasExtraviadasInput.removeAttribute('required');
+                mamparasDañadasInput.removeAttribute('required');
+                // Clear mamparas fields when hidden
+                mamparasInicialInput.value = '';
+                mamparasExtraviadasInput.value = '';
+                mamparasDañadasInput.value = '';
+                totalDisponibleMamparasDisplay.textContent = '0';
+            }
+        });
+
+        // Event listener para el botón "Comenzar Captura" (desde la página de inicio)
+        startButton.addEventListener('click', () => {
+            introPage.style.display = 'none'; 
+            formContainer.classList.remove('hidden'); 
+            formSection1.classList.remove('hidden'); 
+            formSection2.classList.add('hidden');   
+            summarySection.classList.add('hidden'); 
+            dynamicSubtitle.textContent = 'Sindicato financiero - Datos del Trabajador'; 
+            dynamicSubtitle.classList.remove('mb-2'); 
+            dynamicSubtitle.classList.add('mb-6');
+            calculateExistenciaActualUrnas(); 
+            calculateTotalDisponibleMamparas(); 
+            checkUrlAndButton(); 
+        });
+
+        // Event listener para el botón "Atrás" en la sección 1 del formulario
+        backButtonSection1.addEventListener('click', () => {
+            formContainer.classList.add('hidden');
+            formSection1.classList.add('hidden');
+            introPage.style.display = 'flex'; 
+        });
+
+        // Event listener para el botón "Siguiente" (en la sección 1)
+        nextButtonSection1.addEventListener('click', () => {
+            const bimestre = document.getElementById('bimestre'); 
+            const fechaInventario = document.getElementById('fechaInventario');
+            const region = document.getElementById('region');
+            const empresa = document.getElementById('empresa');
+            const nombreDelegado = document.getElementById('nombreDelegado');
+
+            if (!bimestre.value || !fechaInventario.value || !region.value || !empresa.value || !nombreDelegado.value.trim()) {
+                section1ErrorMessage.classList.remove('hidden');
+                return;
+            } else {
+                section1ErrorMessage.classList.add('hidden');
+            }
+
+            formSection1.classList.add('hidden');    
+            formSection2.classList.remove('hidden'); 
+            dynamicSubtitle.textContent = 'Confirmación de Datos de Urnas y Mamparas'; 
+            dynamicSubtitle.classList.remove('mb-6'); 
+            dynamicSubtitle.classList.add('mb-2');
+        });
+
+        // Event listener para el botón "Atrás" en la sección 2 del formulario
+        backButtonSection2.addEventListener('click', () => {
+            formSection2.classList.add('hidden'); 
+            formSection1.classList.remove('hidden'); 
+            dynamicSubtitle.textContent = 'Sindicato financiero - Datos del Trabajador'; 
+            dynamicSubtitle.classList.remove('mb-2'); 
+            dynamicSubtitle.classList.add('mb-6');
+        });
+
+        // Event listener para el botón "Siguiente" (ahora `nextButtonSection2`) en la sección 2
+        nextButtonSection2.addEventListener('click', () => {
+            const totalUrnas = document.getElementById('totalUrnas');
+            const urnasDañadas = document.getElementById('urnasDañadas');
+            const traspasosRecibidos = document.getElementById('traspasosRecibidos');
+            const traspasosRealizados = document.getElementById('traspasosRealizados');
+            const urnasExtraviadas = document.getElementById('urnasExtraviadas');
+            const urnasRecuperadas = document.getElementById('urnasRecuperadas');
+            const nuevasEntradas = document.getElementById('nuevasEntradas');
+
+            // Validación básica para campos numéricos de urnas
+            if (totalUrnas.value === '' || urnasDañadas.value === '' || traspasosRecibidos.value === '' ||
+                traspasosRealizados.value === '' || urnasExtraviadas.value === '' || 
+                urnasRecuperadas.value === '' || nuevasEntradas.value === '') {
+                showModal('Campos Incompletos', 'Por favor, completa todos los campos numéricos de urnas antes de continuar.', 'error');
+                return;
+            }
+
+            // Validación para campos de mamparas si la sección está visible
+            if (!mamparasSection.classList.contains('hidden')) {
+                const mamparasInicial = document.getElementById('mamparasInicial');
+                const mamparasExtraviadas = document.getElementById('mamparasExtraviadas');
+                const mamparasDañadas = document.getElementById('mamparasDañadas');
+
+                if (mamparasInicial.value === '' || mamparasExtraviadas.value === '' || mamparasDañadas.value === '') {
+                    showModal('Campos Incompletos', 'Por favor, completa todos los campos numéricos de mamparas antes de continuar.', 'error');
+                    return;
+                }
+            }
+
+            // Recopila todos los datos del formulario de ambas secciones
+            allFormData = {};
+            const formElements = inventoryForm.elements;
+            for (let i = 0; i < formElements.length; i++) {
+                const element = formElements[i];
+                if (element.name && element.type !== 'button') {
+                    if (mamparasSection.classList.contains('hidden') && element.closest('#mamparasSection')) {
+                        continue; 
+                    }
+
+                    if (element.type === 'file') {
+                        allFormData[element.name] = element.files.length > 0 ? element.files[0].name : 'No se ha seleccionado archivo.';
+                    } else {
+                        allFormData[element.name] = element.value;
+                    }
+                }
+            }
+            allFormData['Total disponible (Urnas)'] = existenciaActualUrnasDisplay.textContent; 
+            if (!mamparasSection.classList.contains('hidden')) {
+                allFormData['Total disponible (Mamparas)'] = totalDisponibleMamparasDisplay.textContent; 
+            }
+
+            displaySummary(allFormData); 
+            formSection2.classList.add('hidden'); 
+            summarySection.classList.remove('hidden'); 
+            dynamicSubtitle.textContent = 'Resumen para Guardar'; 
+            dynamicSubtitle.classList.remove('mb-6'); 
+            dynamicSubtitle.classList.add('mb-2');
+        });
+
+        // Event listeners para abrir la cámara a través del botón personalizado
+        openPortadaUrnasCameraButton.addEventListener('click', () => {
+            portadaUrnasInput.click(); 
+        });
+
+        openFotoUrnasCameraButton.addEventListener('click', () => {
+            fotoUrnasInput.click(); 
+        });
+
+        // Event listeners para actualizar la visualización del nombre del archivo
+        portadaUrnasInput.addEventListener('change', (event) => {
+            if (event.target.files.length > 0) {
+                portadaUrnasFileNameSpan.textContent = event.target.files[0].name;
+            } else {
+                portadaUrnasFileNameSpan.textContent = 'No se ha seleccionado archivo.';
+            }
+        });
+
+        fotoUrnasInput.addEventListener('change', (event) => {
+            if (event.target.files.length > 0) {
+                fotoUrnasFileNameSpan.textContent = event.target.files[0].name;
+            } else {
+                fotoUrnasFileNameSpan.textContent = 'No se ha seleccionado archivo.';
+            }
+        });
+
+        // Event listener para el botón "Guardar datos" (en la página de resumen)
+        saveDataButton.addEventListener('click', async () => {
+            if (GOOGLE_APPS_SCRIPT_URL === 'PEGA_TU_URL_DE_APLICACION_WEB_AQUI' || !GOOGLE_APPS_SCRIPT_URL.startsWith('http')) {
+                console.error("URL de Google Apps Script no configurada o inválida.");
+                showModal('Error de Configuración', 'La URL de Google Apps Script no ha sido configurada correctamente. Contacta al administrador.', 'error');
+                return;
+            }
+
+            responseMessage.classList.remove('hidden');
+            responseMessage.classList.remove('success-message', 'error-message');
+            responseMessage.textContent = 'Enviando datos...';
+            responseMessage.style.color = '#5B6384'; 
+
+            try {
+                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', 
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(allFormData), 
+                });
+
+                responseMessage.textContent = ''; 
+                showModal('¡Datos Registrados con Éxito!', 'La información ha sido guardada correctamente.', 'success');
+
+                // Restablecer el formulario después de un envío exitoso
+                inventoryForm.reset();
+                existenciaActualUrnasDisplay.textContent = '0';
+                totalDisponibleMamparasDisplay.textContent = '0'; 
+                portadaUrnasFileNameSpan.textContent = 'No se ha seleccionado archivo.';
+                fotoUrnasFileNameSpan.textContent = 'No se ha seleccionado archivo.';
+                summarySection.classList.add('hidden'); 
+                introPage.style.display = 'flex'; 
+                formContainer.classList.add('hidden'); 
+                dynamicSubtitle.textContent = 'Sindicato financiero - Datos del Trabajador'; 
+                dynamicSubtitle.classList.remove('mb-2'); 
+                dynamicSubtitle.classList.add('mb-6');
+                mamparasSection.classList.add('hidden'); 
+
+            } catch (error) {
+                console.error('Error al enviar los datos:', error);
+                responseMessage.textContent = ''; 
+                showModal('Error al Registrar Datos', 'Hubo un problema al intentar guardar la información. Por favor, inténtalo de nuevo.', 'error');
+            }
+        });
+
+        /**
+         * Muestra un resumen de los datos capturados.
+         * @param {object} data - Los datos capturados para mostrar en el resumen.
+         */
+        function displaySummary(data) {
+            summaryContent.innerHTML = ''; 
+            for (const key in data) {
+                const div = document.createElement('div');
+                div.classList.add('summary-item');
+
+                // Aplicar estilos especiales a los campos de total disponible
+                if (key === 'Total disponible (Urnas)' || key === 'Total disponible (Mamparas)') {
+                    const labelSpan = document.createElement('span');
+                    labelSpan.classList.add('summary-highlight-label');
+                    labelSpan.textContent = key + ':';
+
+                    const valueSpan = document.createElement('span');
+                    valueSpan.classList.add('summary-highlight-value');
+                    valueSpan.textContent = data[key];
+                    
+                    // Asegurar que estén en la misma fila con espacio entre ellos
+                    div.style.display = 'flex';
+                    div.style.justifyContent = 'space-between';
+                    div.style.alignItems = 'center';
+                    div.style.borderBottom = '1px dashed #E2E8F0'; // Re-apply dashed border
+
+                    div.appendChild(labelSpan);
+                    div.appendChild(valueSpan);
+
+                } else {
+                    div.innerHTML = `<span class="summary-label">${key}:</span> <span class="summary-value">${data[key]}</span>`;
+                }
+                summaryContent.appendChild(div);
+            }
+        }
+
+        // Event listener para el botón "Modificar Datos" (en la sección de resumen)
+        modifyDataButton.addEventListener('click', () => {
+            summarySection.classList.add('hidden');
+            inventoryForm.classList.remove('hidden');
+            responseMessage.classList.add('hidden'); 
+            formSection1.classList.remove('hidden'); 
+            formSection2.classList.add('hidden');   
+            dynamicSubtitle.textContent = 'Sindicato financiero - Datos del Trabajador'; 
+            dynamicSubtitle.classList.remove('mb-2'); 
+            dynamicSubtitle.classList.add('mb-6');
+            if (empresaSelect.value === 'Bancoppel') {
+                mamparasSection.classList.remove('hidden');
+                mamparasInicialInput.setAttribute('required', 'true');
+                mamparasExtraviadasInput.setAttribute('required', 'true');
+                mamparasDañadasInput.setAttribute('required', 'true');
+            } else {
+                mamparasSection.classList.add('hidden');
+                mamparasInicialInput.removeAttribute('required');
+                mamparasExtraviadasInput.removeAttribute('required');
+                mamparasDañadasInput.removeAttribute('required');
+            }
+        });
+
+        // Verificación inicial cuando se carga el script
+        checkUrlAndButton();
+    </script>
+</body>
+</html>
